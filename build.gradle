@@ -9,6 +9,21 @@ version = System.getenv('RELEASE_VERSION') ?: '1.0'
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }
+    maven {
+        url 'https://maven.pkg.github.com/Yggdrasil-Worlds/Server-Extension'
+        credentials {
+            username = project.findProperty("gpr.user")
+            password = project.findProperty("gpr.key")
+        }
+    }
+    maven {
+        url 'https://maven.pkg.github.com/Yggdrasil-World/DAL'
+        credentials {
+            username = project.findProperty("gpr.user")
+            password = project.findProperty("gpr.key")
+        }
+    }
 }
 
 dependencies {
@@ -17,6 +32,12 @@ dependencies {
     implementation 'org.apache.logging.log4j:log4j-api:2.20.0'
     implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
     implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.20.0'
+
+    implementation 'de.yggdrasil.core.extension:server-extension:0.1.2'
+    implementation 'de.yggdrasil.core.dal:dal:v.1.2.0'
+
+    //https://mvnrepository.com/artifact/net.minestom/minestom-snapshots
+    implementation 'net.minestom:minestom-snapshots:2947279898'
 
     // Tests only
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.2'
