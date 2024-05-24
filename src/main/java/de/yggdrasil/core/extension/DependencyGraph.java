@@ -7,13 +7,13 @@ public class DependencyGraph {
     private Map<String, List<String>> adjList = new HashMap<>();
     private Map<String, Integer> inDegree = new HashMap<>();
 
-    public void addPlugin(ServerExtension plugin) {
-        adjList.putIfAbsent(plugin.name, new ArrayList<>());
-        inDegree.putIfAbsent(plugin.name, 0);
-        for (String dep : plugin.dependencies) {
+    public void addPlugin(ServerExtension extension) {
+        adjList.putIfAbsent(extension.name, new ArrayList<>());
+        inDegree.putIfAbsent(extension.name, 0);
+        for (String dep : extension.dependencies) {
             adjList.putIfAbsent(dep, new ArrayList<>());
-            adjList.get(dep).add(plugin.name);
-            inDegree.put(plugin.name, inDegree.getOrDefault(plugin.name, 0) + 1);
+            adjList.get(dep).add(extension.name);
+            inDegree.put(extension.name, inDegree.getOrDefault(extension.name, 0) + 1);
         }
     }
 
