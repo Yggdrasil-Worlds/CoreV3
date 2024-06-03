@@ -5,8 +5,10 @@ import net.minestom.server.MinecraftServer;
 public class ShutdownThread extends Thread{
 
     @Override
-    public void run(){
-        MinecraftServer.stopCleanly();
+    public void run() {
+        if (MinecraftServer.isStarted()) {
+            MinecraftServer.stopCleanly();
+        }
     }
 
 }

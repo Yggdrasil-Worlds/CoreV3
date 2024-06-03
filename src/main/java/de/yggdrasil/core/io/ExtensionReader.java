@@ -2,6 +2,9 @@ package de.yggdrasil.core.io;
 
 import de.yggdrasil.core.ServerCore;
 import de.yggdrasil.core.extension.ServerExtension;
+import de.yggdrasil.core.util.LoggingStrings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,14 +16,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.JarFile;
 
+/**
+ * The ExtensionReader class provides methods to load and instantiate ServerExtensions from JAR files.
+ */
 public class ExtensionReader {
 
-    public static List<ServerExtension> load(){
+    private final static Logger LOGGER = LoggerFactory.getLogger(ExtensionReader.class);
+
+    /**
+     * Loads the ServerExtensions from the "extensions" directory.
+     *
+     * @return A list of instances of the loaded ServerExtensions.
+     */
+    public static List<ServerExtension> load() {
         File extensionsDir = new File("extensions");
         File[] jarFiles = extensionsDir.listFiles((dir, name) -> name.endsWith(".jar"));
 
         if (jarFiles == null || jarFiles.length == 0) {
-            System.out.println("No extension JAR files found.");
+            LOGGER.warn(LoggingStrings.NO_EXTENSIONS_FOUND);
             return null;
         }
 
@@ -63,5 +76,4 @@ public class ExtensionReader {
 
         return extensionInstances;
     }
-
 }

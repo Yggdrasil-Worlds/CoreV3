@@ -2,14 +2,33 @@ package de.yggdrasil.core.extension;
 
 import java.util.*;
 
+/**
+ * The DependencyGraph class models the dependencies between extensions and allows for a topological sorting
+ * to determine a valid load order of the extensions.
+ */
 public class DependencyGraph {
 
-    private Map<String, List<String>> adjList = new HashMap<>();
-    private Map<String, Integer> inDegree = new HashMap<>();
+    /**
+     * Adjacency list storing the dependencies between the extensions.
+     * The key is the name of an extension, and the value is a list of extensions that depend on this extension.
+     */
+    private final Map<String, List<String>> adjList = new HashMap<>();
 
-    public void addPlugin(ServerExtension extension) {
+    /**
+     * Map storing the number of incoming edges (dependencies) for each extension.
+     * The key is the name of an extension, and the value is the number of extensions that depend on this extension.
+     */
+    private final Map<String, Integer> inDegree = new HashMap<>();
+
+    /**
+     * Adds an extension and its dependencies to the graph.
+     *
+     * @param extension The extension to be added.
+     */
+    public void addExtension(ServerExtension extension) {
         adjList.putIfAbsent(extension.name, new ArrayList<>());
         inDegree.putIfAbsent(extension.name, 0);
+
         for (String dep : extension.dependencies) {
             adjList.putIfAbsent(dep, new ArrayList<>());
             adjList.get(dep).add(extension.name);
@@ -17,10 +36,21 @@ public class DependencyGraph {
         }
     }
 
+    /**
+     * Checks if the graph contains a cycle.
+     *
+     * @return true if a cycle is present, otherwise false.
+     */
     public boolean hasCycle() {
-        return !topologicalSort().isEmpty();
+        return topologicalSort().isEmpty();
     }
 
+    /**
+     * Performs a topological sort of the extensions.
+     *
+     * @return A list of extensions in topologically sorted order.
+     *         Returns an empty list if a cycle is present.
+     */
     public List<String> topologicalSort() {
         List<String> order = new ArrayList<>();
         Queue<String> queue = new LinkedList<>();
@@ -35,22 +65,16 @@ public class DependencyGraph {
             String current = queue.poll();
             order.add(current);
 
-            List<String> neighbors = adjList.get(current);
-            if (neighbors != null) {
-                for (String neighbor : neighbors) {
-                    inDegree.put(neighbor, inDegree.get(neighbor) - 1);
-                    if (inDegree.get(neighbor) == 0) {
-                        queue.add(neighbor);
-                    }
+            List<String> neighbors = adjList.getOrDefault(current, Collections.emptyList());
+            for (String neighbor : neighbors) {
+                int newInDegree = inDegree.get(neighbor) - 1;
+                inDegree.put(neighbor, newInDegree);
+                if (newInDegree == 0) {
+                    queue.add(neighbor);
                 }
             }
         }
 
-        if (order.size() != adjList.size()) {
-            return new ArrayList<>(); // Zyklus gefunden, keine gültige Sortierung möglich
-        }
-
-        return order;
+        return order.size() == adjList.size() ? order : Collections.emptyList(); // Cycle check
     }
-
 }
