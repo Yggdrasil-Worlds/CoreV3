@@ -7,4 +7,6 @@ public interface ExceptionStrings {
 
     String LIST_FILES_FAILED = "Failed to list files in the root path for shared extension files";
     String COPY_EXTENSION_FAILED = "Failed to copy file: %s";
+
+    String EXTENSION_DEPENDENCY_CYCLE = "Dependency graph has cycle";
 }

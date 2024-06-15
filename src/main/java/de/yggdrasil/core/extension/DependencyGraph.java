@@ -77,4 +77,5 @@ public class DependencyGraph {
 
         return order.size() == adjList.size() ? order : Collections.emptyList(); // Cycle check
     }
+
 }

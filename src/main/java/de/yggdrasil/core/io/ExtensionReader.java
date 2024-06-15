@@ -3,6 +3,7 @@ package de.yggdrasil.core.io;
 import de.yggdrasil.core.ServerCore;
 import de.yggdrasil.core.extension.ServerExtension;
 import de.yggdrasil.core.util.LoggingStrings;
+import de.yggdrasil.core.util.ServerConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +30,7 @@ public class ExtensionReader {
      * @return A list of instances of the loaded ServerExtensions.
      */
     public static List<ServerExtension> load() {
-        File extensionsDir = new File("extensions");
+        File extensionsDir = new File(ServerConstants.EXTENSION_FOLDER);
         File[] jarFiles = extensionsDir.listFiles((dir, name) -> name.endsWith(".jar"));
 
         if (jarFiles == null || jarFiles.length == 0) {

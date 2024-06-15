@@ -1,6 +1,7 @@
 package de.yggdrasil.core.extension;
 
 import de.yggdrasil.core.io.ExtensionReader;
+import de.yggdrasil.core.util.ExceptionStrings;
 
 import java.util.*;
 
@@ -17,8 +18,9 @@ public class ExtensionLoader {
      * Loads the extensions, creates the load order based on dependencies, and initializes each extension.
      */
     public void loadExtensions() {
-        Map<String, ServerExtension> extensionMap = collectExtensions();
-        createLoadingOrder(extensionMap);
+        Map<String, ServerExtension> extensionMap = this.collectExtensions();
+        if (extensionMap.isEmpty()) return;
+        this.createLoadingOrder(extensionMap);
         extensions.forEach(ServerExtension::initialize);
     }
 
@@ -41,6 +43,7 @@ public class ExtensionLoader {
      */
     private void createLoadingOrder(Map<String, ServerExtension> extensionMap) {
         extensionMap.values().forEach(dependencyGraph::addExtension);
+        if (dependencyGraph.hasCycle()) throw new RuntimeException(ExceptionStrings.EXTENSION_DEPENDENCY_CYCLE);
         List<String> sortedNames = dependencyGraph.topologicalSort();
         sortedNames.forEach(name -> extensions.add(extensionMap.get(name)));
     }

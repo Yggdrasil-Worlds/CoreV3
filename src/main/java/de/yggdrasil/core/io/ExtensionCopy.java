@@ -2,7 +2,7 @@ package de.yggdrasil.core.io;
 
 import de.yggdrasil.core.util.ExceptionStrings;
 import de.yggdrasil.core.util.ServerConstants;
-import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,7 +21,7 @@ public class ExtensionCopy {
      *                          the files cannot be listed, or the copy operation fails.
      */
     public static void copyExtensions(List<String> extensionNames) {
-        String rootPath = ServerConstants.ROOT_PATH_EXTENSIONS;
+        String rootPath = ServerConstants.ROOT_PATH_EXTENSIONS; //Als Env Variable
         File root = new File(rootPath);
 
         if (!root.exists()) {
@@ -40,7 +40,7 @@ public class ExtensionCopy {
 
             for (String extensionName : extensionNames) {
                 if (file.getName().contains(extensionName)) {
-                    File destination = new File(rootPath, extensionName);
+                    File destination = new File(ServerConstants.EXTENSION_FOLDER, extensionName);
                     try {
                         FileUtils.copyFile(file, destination);
                     } catch (IOException e) {

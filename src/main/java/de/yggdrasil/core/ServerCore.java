@@ -1,15 +1,11 @@
 package de.yggdrasil.core;
 
-import de.yggdrasil.core.dal.DAL;
-import de.yggdrasil.core.dal.datasource.models.usertype.ConfigJSON;
-import de.yggdrasil.core.dal.request.implementation.ConfigReadRequest;
-import de.yggdrasil.core.dal.util.profile.ProfileProduction;
 import de.yggdrasil.core.extension.ExtensionLoader;
 import de.yggdrasil.core.io.ExtensionCopy;
-import de.yggdrasil.core.util.ExceptionStrings;
-import de.yggdrasil.core.util.ServerConstants;
-import de.yggdrasil.core.util.ShutdownThread;
+import de.yggdrasil.core.util.*;
 import net.minestom.server.MinecraftServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The ServerCore class is the heart of the server. It initializes, starts, and manages the server's lifecycle and its extensions.
@@ -19,7 +15,9 @@ public class ServerCore {
     private static final ServerCore servercore = new ServerCore();
     private MinecraftServer server;
     private final ExtensionLoader extensionLoader = new ExtensionLoader();
-    private ConfigJSON configuration;
+    private ServerConfiguration configuration;
+
+    private final Logger logger = LoggerFactory.getLogger(ServerCore.class);
 
     private ServerCore() {}
 
@@ -30,7 +28,7 @@ public class ServerCore {
      */
     public static void main(String[] args) {
         servercore.setupPhase();
-        servercore.startPhase();
+        servercore.initPhase();
         servercore.prepareShutdown();
         servercore.loadExtensions();
         servercore.start();
@@ -40,17 +38,18 @@ public class ServerCore {
      * Setup phase where the server configuration is loaded and the extensions are copied.
      */
     private void setupPhase() {
+        logger.info(LoggingStrings.SERVER_SETUP_PHASE);
         String serverID = System.getenv(ServerConstants.SERVER_ID);
         if (serverID == null) throw new RuntimeException(ExceptionStrings.MISSING_SERVER_ID);
-        configuration = DAL.get(new ProfileProduction()).read(
-                new ConfigReadRequest(ServerConstants.CONFIG_READ_REQUEST_IDENTIFIER + serverID)).data();
-        ExtensionCopy.copyExtensions(configuration.getList(ServerConstants.CONFIGURATION_EXTENSION_KEY));
+        configuration = new ServerConfiguration(serverID);
+        ExtensionCopy.copyExtensions(configuration.getServerExtensions());
     }
 
     /**
      * Initializes the Minecraft server.
      */
-    private void startPhase() {
+    private void initPhase() {
+        logger.info(LoggingStrings.SERVER_INIT_PHASE);
         server = MinecraftServer.init();
     }
 
@@ -58,6 +57,7 @@ public class ServerCore {
      * Loads the extensions into the server.
      */
     private void loadExtensions() {
+        logger.info(LoggingStrings.SERVER_LOAD_EXTENSIONS_PHASE);
         extensionLoader.loadExtensions();
     }
 
@@ -65,10 +65,8 @@ public class ServerCore {
      * Starts the server with the configured network settings.
      */
     private void start() {
-        server.start(configuration.get(ServerConstants.CONFIGURATION_KEY_NETWORK)
-                        .getString(ServerConstants.CONFIGURATION_KEY_HOST),
-                Integer.parseInt(configuration.get(ServerConstants.CONFIGURATION_KEY_PORT)
-                        .getString(ServerConstants.CONFIGURATION_KEY_PORT)));
+        logger.info(LoggingStrings.SERVER_START_PHASE);
+        server.start(configuration.getHost(), configuration.getPort());
     }
 
     /**
